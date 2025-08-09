@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: pre-9roomthon
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      # 타임존/프로필
+      - TZ=Asia/Seoul
+      - SPRING_PROFILES_ACTIVE=prod
+
+      # H2 콘솔 그대로 노출 (yml과 동일)
+      - SPRING_H2_CONSOLE_ENABLED=true
+      - SPRING_H2_CONSOLE_PATH=/h2-console
+
+      # 로깅 레벨(옵션)
+      - LOGGING_LEVEL_ORG_HIBERNATE_SQL=DEBUG
+      - LOGGING_LEVEL_ORG_HIBERNATE_TYPE_DESCRIPTOR_SQL=TRACE
+
+      # 애플리케이션 커스텀 프로퍼티(환경변수 → yml 자동 매핑)
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+      - NAVER_CLIENT_ID=${NAVER_CLIENT_ID}
+      - NAVER_CLIENT_SECRET=${NAVER_CLIENT_SECRET}
+      - NAVER_REDIRECT_URI=${NAVER_REDIRECT_URI}
+    volumes:
+      - ./data:/app/data   # H2 파일 영속화 (yml의 ./data 경로와 일치)
+      - ./logs:/app/logs   # (옵션) 로그 보존
+    restart: unless-stopped

@@ -1,0 +1,24 @@
+# Build
+/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Gradle cache
+.gradle/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Logs & temp
+logs/
+*.log
+tmp/
+
+# H2 Database
+data/
+
+# Environment
+.env
+application-secret.properties
+application.properties

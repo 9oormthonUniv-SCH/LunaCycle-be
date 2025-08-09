@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME:Pre-9roomthon}
+
+  # H2 데이터베이스 설정
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:file:./data/demo-db}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.h2.Driver}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+
+  h2:
+    console:
+      enabled: ${SPRING_H2_CONSOLE_ENABLED:true}
+      path: ${SPRING_H2_CONSOLE_PATH:/h2-console}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+    show-sql: ${SPRING_JPA_SHOW_SQL:true}
+
+  sql:
+    init:
+      mode: ${SPRING_SQL_INIT_MODE:always}
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:3600000}
+
+naver:
+  client-id: ${NAVER_CLIENT_ID}
+  client-secret: ${NAVER_CLIENT_SECRET}
+  redirect-uri: ${NAVER_REDIRECT_URI:http://localhost:8080/api/oauth/callback/naver}
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: ${LOGGING_LEVEL_ORG_HIBERNATE_SQL:DEBUG}
+        type:
+          descriptor:
+            sql: ${LOGGING_LEVEL_ORG_HIBERNATE_TYPE_DESCRIPTOR_SQL:TRACE}
