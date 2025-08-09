@@ -57,8 +57,19 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            set -e
-            cd pre-9roomthon
-            docker compose down || true
-            docker compose --env-file .env up -d --build
+            set -euo pipefail
+            cd /home/${{ secrets.EC2_USER }}/pre-9roomthon
+
+            # 확인용
+            pwd
+            docker compose version
+            ls -al
+            ls -al build/libs || true
+
+            # 배포
+            docker compose down --remove-orphans || true
+            docker compose --env-file .env up -d --build --pull always --remove-orphans
+
+            docker compose ps
+            docker compose logs --no-color --tail=200 || true
 
