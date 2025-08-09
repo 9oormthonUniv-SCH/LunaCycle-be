@@ -21,5 +21,16 @@ public class HelloController {
     HelloResponse response = new HelloResponse();
     response.setMessage("Hello, " + request.getName() + "!");
     return response;
+  }
+
+  @PostMapping("/hello2")
+  @Operation(
+        summary = "Hello2 추가 API",
+        description = "name 파라미터를 받아 Hello2 name!을 출력합니다."
+  )
+    public HelloResponse hello2(@RequestBody HelloRequest request) {
+        HelloResponse response = new HelloResponse();
+        response.setMessage("Hello2, " + request.getName() + "!");
+        return response;
     }
 }
