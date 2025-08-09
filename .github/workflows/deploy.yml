@@ -6,7 +6,7 @@ on:
       - main
 
 concurrency:
-  group: deploy-pre-9roomthon-develop
+  group: deploy-pre-9roomthon-main
   cancel-in-progress: true
 
 jobs:
@@ -26,39 +26,53 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          rm: true
+          # 데이터/로그 보존 위해 rm 비활성화 (필요시 true로)
+          rm: false
           source: "."
           target: "/home/${{ secrets.EC2_USER }}/pre-9roomthon"
+          exclude: |
+            .git
+            .github
+            .gitignore
+            .dockerignore
+            .env
+            data
+            build
+            .gradle
+            logs
+            node_modules
+            **/.idea
+            **/.vscode
+            **/*.iml
+            src/main/resources/application.properties
+            src/main/resources/application-secret.properties
 
-      # EC2에서 .env 생성 -> 도커 컴포즈로 빌드/배포
-      - name: SSH to EC2 and build+run on host
+      # EC2에서 .env 생성 → Docker Compose 빌드/배포
+      - name: SSH to EC2 and build+run
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            set -e
+            set -euo pipefail
             cd /home/${{ secrets.EC2_USER }}/pre-9roomthon
 
-            # .env 생성 (GitHub Secret에 멀티라인으로 저장한 ENV_FILE_CONTENT 사용)
+            # 1) .env 생성 (GitHub Secret: ENV_FILE_CONTENT)
             cat > .env << 'EOF'
             ${{ secrets.ENV_FILE_CONTENT }}
             EOF
 
-            # docker compose 혹은 docker-compose 사용 가능한지 확인
-            if docker compose version >/dev/null 2>&1; then
-              COMPOSE="docker compose"
-            else
-              COMPOSE="docker-compose"
-            fi
+            # 2) 기존 컨테이너 종료 (orphan 정리)
+            docker compose down --remove-orphans || true
 
-            # 이전 컨테이너/네트워크 종료
-            $COMPOSE down || true
+            # 3) 빌드 & 배포 (항상 최신 이미지 pull)
+            docker compose --env-file .env up -d --build --pull always --remove-orphans
 
-            # (권장) H2 파일락 회피 위해 .dockerignore에 data/ 포함 + compose에서는 named volume 사용
-            # 빌드 & 배포
-            $COMPOSE --env-file .env up -d --build
+            # 4) 상태/로그 확인
+            docker compose ps
+            docker compose logs --no-color --tail=200 || true
 
-            # 청소
-            docker system prune -f || true
+            # 5) 이미지 캐시 청소(선택)
+            docker image prune -f || true
+
