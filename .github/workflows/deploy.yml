@@ -3,7 +3,7 @@ name: Deploy Pre-9roomthon (EC2 builds Docker)
 on:
   push:
     branches:
-      - feature/sleep-input
+      - main
 
 concurrency:
   group: deploy-pre-9roomthon-develop
