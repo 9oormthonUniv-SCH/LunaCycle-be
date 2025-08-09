@@ -17,15 +17,14 @@ jobs:
 
     steps:
       - name: Checkout
-                - name: Set up JDK 21
-                uses: actions/setup-java@v3
-                with:
-                  java-version: '21'
-                  distribution: 'temurin'
-
-
         uses: actions/checkout@v4
-        
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+              java-version: '21'
+              distribution: 'temurin'
+
       - name: Grant execute permission for Gradle
         run: chmod +x ./gradlew
 
